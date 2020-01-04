@@ -8,10 +8,11 @@ class Representation:
     """
     The base constructor where all the representation variable are defined with default values
     """
-    def __init__(self):
+    def __init__(self, static_build=False):
         self._random_start = True
         self._map = None
         self._old_map = None
+        self.static_builds = False
 
         self.seed()
 
@@ -40,6 +41,8 @@ class Representation:
     def reset(self, width, height, prob):
         if self._random_start or self._old_map is None:
             self._map = gen_random_map(self._random, width, height, prob)
+            if self.static_builds:
+                self._static_builds = self._map.astype('bool')
             self._old_map = self._map.copy()
         else:
             self._map = self._old_map.copy()

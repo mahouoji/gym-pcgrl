@@ -27,6 +27,7 @@ class PcgrlEnv(gym.Env):
     def __init__(self, prob="binary", rep = "narrow"):
         self.rank = 0
         self.render_gui = False
+        self.inference = False
         self._prob = PROBLEMS[prob]()
         self._rep = REPRESENTATIONS[rep]()
         self._rep_stats = None
@@ -112,11 +113,15 @@ class PcgrlEnv(gym.Env):
         self._rep.adjust_param(**kwargs)
         self.action_space = self._rep.get_action_space(self._prob._width, self._prob._height, self.get_num_tiles())
         self.observation_space = self._rep.get_observation_space(self._prob._width, self._prob._height, self.get_num_tiles())
+        if 'static_builds' in kwargs:
+            self._rep.static_builds = kwargs['static_builds']
         self.observation_space.spaces['heatmap'] = spaces.Box(low=0, high=self._max_changes, dtype=np.uint8, shape=(self._prob._height, self._prob._width))
         if 'rank' in kwargs:
             self.rank = kwargs['rank']
         if 'render' in kwargs:
             self.render_gui = kwargs['render']
+        if 'inference' in kwargs and kwargs['inference']:
+            self.inference = True
 
 
     """
@@ -149,6 +154,11 @@ class PcgrlEnv(gym.Env):
         observation["heatmap"] = self._heatmap.copy()
         reward = self._prob.get_reward(self._rep_stats, old_stats)
         done = self._prob.get_episode_over(self._rep_stats,old_stats) or self._changes >= self._max_changes or self._iteration >= self._max_iterations
+        if self.inference:
+            done = False
+            if self._rep_stats != old_stats:
+                print(self._rep_stats)
+               #print(reward)
         info = self._prob.get_debug_info(self._rep_stats,old_stats)
         info["iterations"] = self._iteration
         info["changes"] = self._changes

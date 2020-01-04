@@ -40,8 +40,11 @@ class WideRepresentation(Representation):
         Box: the observation space used by that representation. A 2D array of tile numbers
     """
     def get_observation_space(self, width, height, num_tiles):
+        high = num_tiles - 1
+        if self.static_builds:
+            high += 1
         return spaces.Dict({
-            "map": spaces.Box(low=0, high=num_tiles-1, dtype=np.uint8, shape=(height, width))
+            "map": spaces.Box(low=0, high=high, dtype=np.uint8, shape=(height, width))
         })
 
     """
@@ -51,8 +54,11 @@ class WideRepresentation(Representation):
         observation: the current observation at the current moment. A 2D array of tile numbers
     """
     def get_observation(self):
+        map = self._map.copy()
+        if self.static_builds:
+            map = map + self._static_builds
         return {
-            "map": self._map.copy()
+            "map": map
         }
 
     """
@@ -65,6 +71,10 @@ class WideRepresentation(Representation):
         boolean: True if the action change the map, False if nothing changed
     """
     def update(self, action):
-        change = [0,1][self._map[action[1]][action[0]] != action[2]]
-        self._map[action[1]][action[0]] = action[2]
+        if not self.static_builds or not self._static_builds[action[1]][action[0]]:
+            change = [0,1][self._map[action[1]][action[0]] != action[2]]
+            self._map[action[1]][action[0]] = action[2]
+        else:
+           #print('not overwriting static build at {} {}'.format(action[1], action[0]))
+            change = False
         return change, action[0], action[1]

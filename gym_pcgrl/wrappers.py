@@ -1,6 +1,5 @@
 import gym
 import gym_pcgrl
-from stable_baselines.bench import Monitor
 
 import numpy as np
 import math

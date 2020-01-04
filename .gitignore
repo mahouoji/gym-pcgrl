@@ -33,3 +33,6 @@ runs/
 
 #Jupyter logs
 .ipynb_checkpoints/
+
+# Saved models
+*.zip

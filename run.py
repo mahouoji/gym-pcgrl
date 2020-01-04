@@ -5,7 +5,8 @@ import gym
 import gym_pcgrl
 from gym_pcgrl import wrappers
 
-from stable_baselines.common.policies import MlpPolicy, CnnPolicy, ActorCriticPolicy, FeedForwardPolicy
+#from stable_baselines.common.policies import MlpPolicy, CnnPolicy, ActorCriticPolicy, FeedForwardPolicy
+from stable_baselines.common.policies import ActorCriticPolicy, FeedForwardPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv, DummyVecEnv
 from stable_baselines.a2c.utils import conv, linear, conv_to_fc
 from stable_baselines.results_plotter import load_results, ts2xy
@@ -115,6 +116,7 @@ class CustomPolicy(FeedForwardPolicy):
 
 
 def main(game, representation, experiment, steps, n_cpu, render):
+    global kwargs
     env_name = '{}-{}-v0'.format(game, representation)
     exp_name = '{}_{}_{}'.format(game, representation, experiment)
     global log_dir
@@ -126,7 +128,7 @@ def main(game, representation, experiment, steps, n_cpu, render):
     else:
         shutil.rmtree(log_dir)
         os.mkdir(log_dir)
-    kwargs = {
+    kwargs = {**kwargs,
             'log_dir': log_dir,
             'render': render,
             'change_percentage': 1,
@@ -146,21 +148,58 @@ def main(game, representation, experiment, steps, n_cpu, render):
     model.save(experiment)
 
 
+def infer(game, representation, experiment):
+    global kwargs
+    kwargs = {**kwargs,
+            'render': True,
+            'inference': True,
+            }
+    env_name = '{}-{}-v0'.format(game, representation)
+    exp_name = '{}_{}_{}'.format(game, representation, experiment)
+    global log_dir
+    log_dir = os.path.join("./runs", exp_name)
+    #log_dir = os.path.join(log_dir, 'best_model')
+    log_dir = log_dir + 'best_model.pkl'
+    model = PPO2.load(log_dir)
+    env = DummyVecEnv([make_env(env_name, representation, 0, **kwargs)])
+    obs = env.reset()
+    n_step = 0
+    while True:
+        if n_step >= 1200:
+            obs = env.reset()
+            n_step = 0
+        else:
+            action = get_action(obs, env, model)
+            obs, rewards, dones, info = env.step(action)
+            n_step += 1
+
+def get_action(obs, env, model, action_type=True):
+    action = None
+    if action_type == 0:
+        action, _ = model.predict(obs)
+    elif action_type == 1:
+        action_prob = model.action_probability(obs)[0]
+        action = np.random.choice(a=list(range(len(action_prob))), size=1, p=action_prob)
+    else:
+        action = np.array([env.action_space.sample()])
+    return action
+
+
 """
 Wrap the environment in a Monitor to save data in .csv files.
 """
 def wrap_monitor(env, **kwargs):
-    rank = kwargs['rank']
-    log_dir = kwargs['log_dir']
-   #print('wrapper rank {}'.format(rank))
-    log_dir = os.path.join(log_dir, str(rank))
-    env = Monitor(env, log_dir)
+    if 'log_dir' in kwargs:
+        rank = kwargs['rank']
+        log_dir = kwargs['log_dir']
+       #print('wrapper rank {}'.format(rank))
+        log_dir = os.path.join(log_dir, str(rank))
+        env = Monitor(env, log_dir)
     return env
 
 
 def make_env(env_name, representation, rank, **kwargs):
     def _thunk():
-        print(env_name)
         if 'wide' in representation:
             env = wrappers.ActionMapImagePCGRLWrapper(env_name, 28, random_tile=True,
                     rank=rank, **kwargs)
@@ -168,15 +207,24 @@ def make_env(env_name, representation, rank, **kwargs):
             env = wrappers.CroppedImagePCGRLWrapper(env_name, 28, random_tile=True,
                     rank=rank, **kwargs)
         env = wrap_monitor(env, rank=rank, **kwargs)
-        print(env.action_space)
         return env
     return _thunk
 
+game = 'binary'
+representation = 'wide'
+#experiment = 'wide_Cnn_fullChange_test'
+#experiment = '.3static'
+experiment = '.2change'
+kwargs = {
+        'static_builds': False,
+        'change_percentage': 1,
+        }
+
+def enjoy():
+    infer(game, representation, experiment)
+
 if __name__ == '__main__':
-    game = 'binary'
-    representation = 'wide'
-    experiment = 'wide_Cnn_fullChange_test'
-    n_cpu = 2
+    n_cpu = 100
     steps = 10e7
     render = True
     main(game, representation, experiment, steps, n_cpu, render)
