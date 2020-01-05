@@ -259,6 +259,48 @@ class ActionMap(gym.Wrapper):
         self.old_obs = obs
         return obs, reward, done, info
 
+
+class FullActionMap(gym.Wrapper):
+    def __init__(self, game, **kwargs):
+        if isinstance(game, str):
+            self.env = gym.make(game)
+        else:
+            self.env = game
+        get_pcgrl_env(self.env).adjust_param(**kwargs)
+        gym.Wrapper.__init__(self, self.env)
+
+        assert 'map' in self.env.observation_space.spaces.keys(), 'This wrapper only works if you have a map key'
+        self.old_obs = None
+        self.one_hot = len(self.env.observation_space['map'].shape) > 2
+        w, h, dim = 0, 0, 0
+        if self.one_hot:
+            h, w, dim = self.env.observation_space['map'].shape
+        else:
+            h, w = self.env.observation_space['map'].shape
+            dim = self.env.observation_space['map'].high.max()
+        self.action_space = gym.spaces.Box(low=np.inf, high=np.inf, shape=(h,w,dim))
+
+    def reset(self):
+        self.old_obs = self.env.reset()
+        return self.old_obs
+
+    def step(self, action):
+        y, x, v = np.unravel_index(np.argmax(action), action.shape)
+        if 'pos' in self.old_obs:
+            o_x, o_y = self.old_obs['pos']
+            if o_x == x and o_y == y:
+                obs, reward, done, info = self.env.step(v)
+            else:
+                o_v = self.old_obs['map'][o_y][o_x]
+                if self.one_hot:
+                    o_v = o_v.argmax()
+                obs, reward, done, info = self.env.step(o_v)
+        else:
+            obs, reward, done, info = self.env.step([x, y, v])
+        self.old_obs = obs
+        return obs, reward, done, info
+
+
 """
 Normalize a certain attribute by the max and min values of its observation_space
 
