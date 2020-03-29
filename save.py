@@ -9,8 +9,6 @@ import tensorflow as tf
 import os
 import shutil
 
-log_dir = './'
-
 def save_agent(game, representation, model_path, checkpoint_path, **kwargs):
     agent = PPO2.load(model_path)
     with agent.graph.as_default():
