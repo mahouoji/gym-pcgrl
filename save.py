@@ -6,6 +6,9 @@ from utils import make_vec_envs
 
 import tensorflow as tf
 
+import os
+import shutil
+
 log_dir = './'
 
 def save_agent(game, representation, model_path, **kwargs):
@@ -27,9 +30,12 @@ def save_agent(game, representation, model_path, **kwargs):
     
     agent = PPO2.load('runs/binary_narrow_1_log/best_model.pkl')
 
+    checkpoint_name = './checkpoint'
     with agent.graph.as_default():
-        tf.saved_model.simple_save(agent.sess, './checkpoint', inputs={"obs": agent.act_model.obs_ph},
-                                   outputs={"action": agent.action_ph})
+        if os.path.exists(checkpoint_name):
+            shutil.rmtree(checkpoint_name)
+        tf.saved_model.simple_save(agent.sess, checkpoint_name, inputs={"obs": agent.act_model.obs_ph},
+                                   outputs={"action": agent.act_model._policy_proba})
 
 ################################## MAIN ########################################
 game = 'binary'
