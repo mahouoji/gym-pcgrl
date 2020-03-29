@@ -6,40 +6,26 @@ from utils import make_vec_envs
 
 import tensorflow as tf
 
+import os
+import shutil
+
 log_dir = './'
 
-def save_agent(game, representation, model_path, **kwargs):
-    """
-     - max_trials: The number of trials per evaluation.
-     - infer_kwargs: Args to pass to the environment.
-    """
-    env_name = '{}-{}-v0'.format(game, representation)
-    if game == "binary":
-        model.FullyConvPolicy = model.FullyConvPolicyBigMap
-        kwargs['cropped_size'] = 28
-    elif game == "zelda":
-        model.FullyConvPolicy = model.FullyConvPolicyBigMap
-        kwargs['cropped_size'] = 22
-    elif game == "sokoban":
-        model.FullyConvPolicy = model.FullyConvPolicySmallMap
-        kwargs['cropped_size'] = 10
-    kwargs['render'] = True
-    
-    agent = PPO2.load('runs/binary_narrow_1_log/best_model.pkl')
-
+def save_agent(game, representation, model_path, checkpoint_path, **kwargs):
+    agent = PPO2.load(model_path)
     with agent.graph.as_default():
-        tf.saved_model.simple_save(agent.sess, './checkpoint', inputs={"obs": agent.act_model.obs_ph},
-                                   outputs={"action": agent.action_ph})
+        if os.path.exists(checkpoint_path):
+            shutil.rmtree(checkpoint_path)
+        tf.saved_model.simple_save(agent.sess, checkpoint_path, inputs={"obs": agent.act_model.obs_ph},
+                                   outputs={"action": agent.act_model._policy_proba})
 
 ################################## MAIN ########################################
 game = 'binary'
 representation = 'narrow'
-model_path = 'models/{}/{}/model_1.pkl'.format(game, representation)
-kwargs = {
-    'change_percentage': 0.4,
-    'trials': 1,
-    'verbose': True
-}
+#model_path = 'models/{}/{}/model_1.pkl'.format(game, representation) #TODO: error loading pretrained agents
+model_path = 'runs/{}_{}_1_log/best_model.pkl'.format(game, representation)
+checkpoint_path = './checkpoint'
+kwargs = {}
 
 if __name__ == '__main__':
-    save_agent(game, representation, model_path, **kwargs)
+    save_agent(game, representation, model_path, checkpoint_path, **kwargs)
