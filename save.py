@@ -29,6 +29,6 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     model_path = 'models/{}/{}/{}.pkl'.format(args.game, args.rep, args.model)
-    checkpoint_path = 'checkpoint/{}/{}/{}'.format(args.game, args.rep, args.model)
+    checkpoint_path = 'models-tf/{}/{}/{}'.format(args.game, args.rep, args.model)
     kwargs = {}
     save_agent(model_path, checkpoint_path, **kwargs)

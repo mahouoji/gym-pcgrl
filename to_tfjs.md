@@ -1,6 +1,6 @@
 ## TensorFlow.js
 
-### Convert to TensorFlow.js format
+### Set Up
 
 Set up pcgrl
 
@@ -19,20 +19,31 @@ pip install ipykernel
 pip install --no-deps tensorflowjs   
 ```
 
-Save as TensorFlow model
+### Load models and convert to TensorFlow.js web format
+
+#### Environments
+
+| game    | representation | python |
+| ------- | -------------- | ------ |
+| sokoban | narrow         | 3.5    |
+| sokoban | turtle         | 3.5    |
+
+See `./load_and_convert.sh`
+
+#### Save as TensorFlow model
 
 ```bash
 python save.py
 ```
 
-Convert model to TensorFlow.js web format
+#### Convert to TensorFlow.js format
 
 ```bash
 tensorflowjs_converter \
     --input_format=tf_saved_model \
-    --output_node_names='testsave' \
-    ./checkpoint/sokoban/model_1 \
-    ./tfjsmodel
+    --output_node_names='model_1' \
+    ./checkpoint/sokoban/narrow/model_1 \
+    ./tfjsmodel/sokoban/narrow/model_1
 ```
 
 ### Use TensorFlow.js model
