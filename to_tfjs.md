@@ -31,7 +31,7 @@ Convert model to TensorFlow.js web format
 tensorflowjs_converter \
     --input_format=tf_saved_model \
     --output_node_names='testsave' \
-    ./checkpoint \
+    ./checkpoint/sokoban/model_1 \
     ./tfjsmodel
 ```
 
@@ -56,7 +56,7 @@ async function fetchModel() {
 Use model
 
 ```javascript
-		let state = getState()
+    let state = getState()
     let a = tf.tensor2d([state], shape = [1, 12], dtype = "int32")
     // calls predict on the model
     let preResp = await model.predict(a).array()

@@ -8,22 +8,27 @@ import tensorflow as tf
 
 import os
 import shutil
+import argparse
 
-def save_agent(game, representation, model_path, checkpoint_path, **kwargs):
+def save_agent(model_path, checkpoint_path, **kwargs):
     agent = PPO2.load(model_path)
     with agent.graph.as_default():
         if os.path.exists(checkpoint_path):
             shutil.rmtree(checkpoint_path)
-        tf.saved_model.simple_save(agent.sess, checkpoint_path, inputs={"obs": agent.act_model.obs_ph},
-                                   outputs={"action": agent.act_model._policy_proba})
+        tf.saved_model.simple_save(agent.sess, checkpoint_path, inputs={'obs': agent.act_model.obs_ph},
+                                   outputs={'action': agent.act_model._policy_proba})
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', '--game', type=str, default='sokoban', help='game: binary/sokoban/zelda')
+    parser.add_argument('-r', '--rep', type=str, default='turtle', help='representation: narrow/turtle/wide')
+    parser.add_argument('-m', '--model', type=str, default='model_1', help='model name: model_1/model_2/model_3')
+    return parser.parse_args()
 
 ################################## MAIN ########################################
-game = 'binary'
-representation = 'narrow'
-#model_path = 'models/{}/{}/model_1.pkl'.format(game, representation) #TODO: error loading pretrained agents
-model_path = 'runs/{}_{}_1_log/best_model.pkl'.format(game, representation)
-checkpoint_path = './checkpoint'
-kwargs = {}
-
 if __name__ == '__main__':
-    save_agent(game, representation, model_path, checkpoint_path, **kwargs)
+    args = parse_args()
+    model_path = 'models/{}/{}/{}.pkl'.format(args.game, args.rep, args.model)
+    checkpoint_path = 'checkpoint/{}/{}/{}'.format(args.game, args.rep, args.model)
+    kwargs = {}
+    save_agent(model_path, checkpoint_path, **kwargs)
