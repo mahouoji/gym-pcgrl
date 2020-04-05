@@ -32,6 +32,9 @@ def infer(game, representation, model_path, **kwargs):
     for i in range(kwargs.get('trials', 1)):
         while not dones:
             action, _ = agent.predict(obs)
+            print('------')
+            print(action)
+            print('======')
             obs, _, dones, info = env.step(action)
             if kwargs.get('verbose', False):
                 print(info[0])
@@ -40,7 +43,7 @@ def infer(game, representation, model_path, **kwargs):
         time.sleep(0.2)
 
 ################################## MAIN ########################################
-game = 'binary'
+game = 'sokoban'
 representation = 'narrow'
 model_path = 'models/{}/{}/model_1.pkl'.format(game, representation)
 kwargs = {
