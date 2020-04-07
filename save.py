@@ -12,6 +12,7 @@ import argparse
 
 def save_agent(model_path, checkpoint_path, **kwargs):
     agent = PPO2.load(model_path)
+    #print(model.summary())
     with agent.graph.as_default():
         if os.path.exists(checkpoint_path):
             shutil.rmtree(checkpoint_path)

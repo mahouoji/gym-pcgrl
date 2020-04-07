@@ -70,20 +70,9 @@ async function predictAndDraw() {
     [0,1,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0]],
-
-    [[0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0]],
@@ -92,11 +81,11 @@ async function predictAndDraw() {
     [0,1,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
     [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
+    [1,0,0,0,0],
     [0,1,0,0,0]],
 
     [[0,1,0,0,0],
@@ -104,9 +93,9 @@ async function predictAndDraw() {
     [0,1,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
-    [0,1,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
+    [1,0,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0]],
 
@@ -114,8 +103,19 @@ async function predictAndDraw() {
     [0,1,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0],
+    [0,0,0,0,1],
     [0,1,0,0,0],
     [0,1,0,0,0],
+    [0,0,1,0,0],
+    [0,0,0,1,0],
+    [0,1,0,0,0]],
+
+    [[0,1,0,0,0],
+    [0,1,0,0,0],
+    [0,1,0,0,0],
+    [0,1,0,0,0],
+    [0,0,0,1,0],
+    [1,0,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0],
     [0,1,0,0,0],
@@ -143,11 +143,17 @@ async function predictAndDraw() {
     [0,1,0,0,0],
     [0,1,0,0,0]],
     ]]
-
+    // prepare state input
     let a = tf.tensor4d(state, shape = [1, 10, 10, 5], dtype = "float32")
     // calls predict on the model
     let preResp = await model.predict(a).array()
     console.log(preResp)
+    // let actionIndex = preResp[0].indexOf(Math.max(...preResp[0]))
+    indexes = preResp[0].map((val, ind) => {return {ind, val}})
+           .sort((a, b) => {return a.val > b.val ? 1 : a.val == b.val ? 0 : -1 })
+           .map((obj) => obj.ind)
+    actionIndex = indexes[indexes.length-1]
+    console.log(actionIndex)
     /*
     // let actionIndex = preResp[0].indexOf(Math.max(...preResp[0]))
     indexes = preResp[0].map((val, ind) => {return {ind, val}})
