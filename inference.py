@@ -46,7 +46,7 @@ def infer(game, representation, model_path, **kwargs):
 
 ################################## MAIN ########################################
 game = 'sokoban'
-representation = 'narrow'
+representation = 'wide'
 model_path = 'models/{}/{}/model_1.pkl'.format(game, representation)
 kwargs = {
     'change_percentage': 0.4,

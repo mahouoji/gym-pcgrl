@@ -37,5 +37,9 @@ if __name__ == '__main__':
     args = parse_args()
     model_path = 'models/{}/{}/{}.pkl'.format(args.game, args.rep, args.model)
     checkpoint_path = 'models-tf/{}/{}/{}'.format(args.game, args.rep, args.model)
-    kwargs = {}
+    kwargs = {
+        'change_percentage': 0.4,
+        'trials': 1,
+        'verbose': True
+    }
     save_agent(args.game, model_path, checkpoint_path, **kwargs)
