@@ -10,7 +10,13 @@ import os
 import shutil
 import argparse
 
-def save_agent(model_path, checkpoint_path, **kwargs):
+def save_agent(game, model_path, checkpoint_path, **kwargs):
+    if game == "binary":
+        model.FullyConvPolicy = model.FullyConvPolicyBigMap
+    elif game == "zelda":
+        model.FullyConvPolicy = model.FullyConvPolicyBigMap
+    elif game == "sokoban":
+        model.FullyConvPolicy = model.FullyConvPolicySmallMap
     agent = PPO2.load(model_path)
     #print(model.summary())
     with agent.graph.as_default():
@@ -32,4 +38,4 @@ if __name__ == '__main__':
     model_path = 'models/{}/{}/{}.pkl'.format(args.game, args.rep, args.model)
     checkpoint_path = 'models-tf/{}/{}/{}'.format(args.game, args.rep, args.model)
     kwargs = {}
-    save_agent(model_path, checkpoint_path, **kwargs)
+    save_agent(args.game, model_path, checkpoint_path, **kwargs)

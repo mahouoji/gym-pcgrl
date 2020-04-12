@@ -16,6 +16,7 @@ Install tensorflowjs
 
 ```bash
 pip install ipykernel
+pip install tensorflow_hub
 pip install --no-deps tensorflowjs   
 ```
 
@@ -27,24 +28,22 @@ pip install --no-deps tensorflowjs
 | ------- | -------------- | ------ |
 | sokoban | narrow         | 3.5    |
 | sokoban | turtle         | 3.5    |
-
-See `./load_and_convert.sh`
-
-#### Save as TensorFlow model
-
-```bash
-python save.py
-```
+| sokoban | wide           | 3.7    |
 
 #### Convert to TensorFlow.js format
 
 ```bash
+# to TensorFlow saved model, saved to ./models-tf
+python save.py --game sokoban --rep narrow --model model_1
+# to TensorFlow.js web format, saved to ./tfjs/models-tfjs
 tensorflowjs_converter \
     --input_format=tf_saved_model \
     --output_node_names='model_1' \
     ./checkpoint/sokoban/narrow/model_1 \
-    ./tfjsmodel/sokoban/narrow/model_1
+    ./tfjs/models-tfjs/sokoban/narrow/model_1
 ```
+
+See `./load_and_convert.sh`(sokoban narrow and turtle),  `./load_and_convert-wide.sh` (sokoban wide)
 
 ### Use TensorFlow.js model
 
