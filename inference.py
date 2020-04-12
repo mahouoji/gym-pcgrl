@@ -31,10 +31,12 @@ def infer(game, representation, model_path, **kwargs):
     dones = False
     for i in range(kwargs.get('trials', 1)):
         while not dones:
+            print('=====')
+            print(repr(obs))
             action, _ = agent.predict(obs)
-            print('------')
+            print('-----')
             print(action)
-            print('======')
+            print('====')
             obs, _, dones, info = env.step(action)
             if kwargs.get('verbose', False):
                 print(info[0])
