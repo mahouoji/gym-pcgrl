@@ -13,12 +13,14 @@ import argparse
 def save_agent(game, model_path, checkpoint_path, **kwargs):
     if game == "binary":
         model.FullyConvPolicy = model.FullyConvPolicyBigMap
+        kwargs['cropped_size'] = 28
     elif game == "zelda":
         model.FullyConvPolicy = model.FullyConvPolicyBigMap
+        kwargs['cropped_size'] = 22
     elif game == "sokoban":
         model.FullyConvPolicy = model.FullyConvPolicySmallMap
+        kwargs['cropped_size'] = 10
     agent = PPO2.load(model_path)
-    #print(model.summary())
     with agent.graph.as_default():
         if os.path.exists(checkpoint_path):
             shutil.rmtree(checkpoint_path)

@@ -33,7 +33,7 @@ def infer(game, representation, model_path, **kwargs):
         while not dones:
             print('=====')
             print(repr(obs))
-            action, _ = agent.predict(obs)
+            action, _ = agent.predict(obs, deterministic=True)
             print('-----')
             print(action)
             print('====')
@@ -46,7 +46,7 @@ def infer(game, representation, model_path, **kwargs):
 
 ################################## MAIN ########################################
 game = 'sokoban'
-representation = 'wide'
+representation = 'narrow'
 model_path = 'models/{}/{}/model_1.pkl'.format(game, representation)
 kwargs = {
     'change_percentage': 0.4,

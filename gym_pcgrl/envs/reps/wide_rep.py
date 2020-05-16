@@ -65,6 +65,12 @@ class WideRepresentation(Representation):
         boolean: True if the action change the map, False if nothing changed
     """
     def update(self, action):
+        print('!!!!!!')
+        print(action)
+        print(action[1])
+        print(action[0])
+        print(action[2])
+        print('!!!!!!')
         change = [0,1][self._map[action[1]][action[0]] != action[2]]
         self._map[action[1]][action[0]] = action[2]
         return change, action[0], action[1]
